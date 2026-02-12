@@ -2,14 +2,19 @@ from collections import Counter
 
 
 class Deck:
-    def __init__(self, row, column, is_alive=True):
+    def __init__(self, row: int, column: int, is_alive: bool = True) -> None:
         self.row = row
         self.column = column
         self.is_alive = is_alive
-# deck1 = Deck(0,0)
+
 
 class Ship:
-    def __init__(self, start: tuple, end: tuple, is_drowned=False):
+    def __init__(
+            self,
+            start: tuple,
+            end: tuple,
+            is_drowned: bool = False
+    ) -> None:
         # Create decks and save them to a list `self.decks`
         self.decks = []
         self.is_drowned = is_drowned
@@ -24,26 +29,23 @@ class Ship:
         if start_row == end_row and start_col == end_col:
             self.decks.append(Deck(start_row, end_col))
         elif start_row == end_row:
-            #horizontal (0, 0) (0, 3) or (0, 3) (0, 0)
             left = min(start_col, end_col)
             right = max(start_col, end_col)
             for i in range(left, right + 1):
                 self.decks.append(Deck(start_row, i))
         elif start_col == end_col:
-            #vertical (0, 0) (3, 0) or (3, 0) (0, 0)
             up = min(start_row, end_row)
             down = max(start_row, end_row)
             for i in range(up, down + 1):
                 self.decks.append(Deck(i, start_col))
-# ship = Ship(Deck(0,0), Deck(1,0), Deck(2,0), Deck(3,0))
 
-    def get_deck(self, row, column):
+    def get_deck(self, row: int, column: int) -> None | Deck:
         for deck in self.decks:
             if deck.row == row and deck.column == column:
                 return deck
         return None
 
-    def fire(self, row, column):
+    def fire(self, row: int, column: int) -> str:
         result = self.get_deck(row, column)
         if result is None:
             return "Miss!"
@@ -60,7 +62,10 @@ class Ship:
 
 
 class Battleship:
-    def __init__(self, ships: list[tuple[tuple[int, int], tuple[int, int]]]):
+    def __init__(
+            self,
+            ships: list[tuple[tuple[int, int], tuple[int, int]]]
+    ) -> None:
         self.field = {}
         for ship in ships:
             start, end = ship[0], ship[1]
@@ -68,15 +73,15 @@ class Battleship:
             for deck in ship.decks:
                 self.field[(deck.row, deck.column)] = ship
 
-    def fire(self, location: tuple):
+    def fire(self, location: tuple) -> str:
         if location in self.field:
             return self.field[location].fire(*location)
 
         return "Miss!"
 
-    def print_field(self):
+    def print_field(self) -> None:
         matrix = 10
-        SYMBOLS = {
+        symbols = {
             "water": "░",
             "alive": "█",
             "hit": "✖",
@@ -89,17 +94,19 @@ class Battleship:
                     ship = self.field[cords]
                     deck = ship.get_deck(*cords)
                     if ship.is_drowned:
-                        print(SYMBOLS["sunk"], end="  ")
+                        print(symbols["sunk"], end="  ")
                     elif not deck.is_alive:
-                        print(SYMBOLS["hit"], end="  ")
+                        print(symbols["hit"], end="  ")
                     else:
-                        print(SYMBOLS["alive"], end="  ")
+                        print(symbols["alive"], end="  ")
                 else:
-                    print(SYMBOLS["water"], end="  ")
+                    print(symbols["water"], end="  ")
             print()
 
-    def _validate_field(self):
-        ship_sizes = Counter(len(ship.decks) for ship in set(self.field.values()))
+    def _validate_field(self) -> None:
+        ship_sizes = (
+            Counter(len(ship.decks) for ship in set(self.field.values()))
+        )
         if ship_sizes[4] > 1:
             raise ValueError("Could be only one 4 deck ship")
         elif ship_sizes[3] > 2:
@@ -113,16 +120,14 @@ class Battleship:
 
         occupied = set(self.field.keys())
         for row, col in occupied:
-            for r in range(row -1, row + 2):
-                for c in range(col - 1, col + 2):
-                    if (r, c) in occupied and (r, c) != (row, col):
+            for r_cl in range(row - 1, row + 2):
+                for c_cl in range(col - 1, col + 2):
+                    if (r_cl, c_cl) in occupied and (r_cl, c_cl) != (row, col):
                         current_ship = self.field[(row, col)]
-                        neighbour_ship = self.field[(r, c)]
+                        neighbour_ship = self.field[(r_cl, c_cl)]
 
                         if current_ship is not neighbour_ship:
-                            raise ValueError("Ships shouldn't be located in neighboring cells")
-
-
-
-
-
+                            raise ValueError(
+                                "Ships shouldn't "
+                                "be located in neighboring cells"
+                            )
