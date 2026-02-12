@@ -47,8 +47,6 @@ class Ship:
 
     def fire(self, row: int, column: int) -> str:
         result = self.get_deck(row, column)
-        if result is None:
-            return "Miss!"
 
         if not result.is_alive:
             raise ValueError("You already fired at this location.")
@@ -72,6 +70,7 @@ class Battleship:
             ship = Ship(start, end)
             for deck in ship.decks:
                 self.field[(deck.row, deck.column)] = ship
+        self._validate_field()
 
     def fire(self, location: tuple) -> str:
         if location in self.field:
@@ -107,15 +106,15 @@ class Battleship:
         ship_sizes = (
             Counter(len(ship.decks) for ship in set(self.field.values()))
         )
-        if ship_sizes[4] > 1:
-            raise ValueError("Could be only one 4 deck ship")
-        elif ship_sizes[3] > 2:
-            raise ValueError("Could be only two 3 deck ship")
-        elif ship_sizes[2] > 3:
-            raise ValueError("Could be only three 2 deck ship")
-        elif ship_sizes[1] > 4:
-            raise ValueError("Could be only one 4 deck ship")
-        elif sum(ship_sizes.values()) > 10:
+        if ship_sizes[4] != 1:
+            raise ValueError("Could be only one 4-deck ship")
+        elif ship_sizes[3] != 2:
+            raise ValueError("Could be only two 3-deck ship")
+        elif ship_sizes[2] != 3:
+            raise ValueError("Could be only three 2-deck ship")
+        elif ship_sizes[1] != 4:
+            raise ValueError("Could be only four 1-deck ship")
+        elif sum(ship_sizes.values()) != 10:
             raise ValueError("Available only 10 ships")
 
         occupied = set(self.field.keys())
